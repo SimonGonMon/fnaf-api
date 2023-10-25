@@ -74,6 +74,15 @@ async def root():
 async def say_hello(name: str):
     return {"message": f"Hello {name}"}
 
+@app.get("/debug/count")
+async def count_files():
+    # Get list of all objects in S3 bucket
+    response = s3_client.list_objects_v2(Bucket=S3_BUCKET_NAME)
+
+    # Count number of objects in S3 bucket
+    count = response['KeyCount']
+
+    return {"count": count}
 
 @app.delete("/debug/delete-all")
 async def delete_all_objects_s3():
