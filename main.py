@@ -27,7 +27,7 @@ s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_acce
 conn = psycopg2.connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT, dbname=DB_DATABASE)
 cursor = conn.cursor()
 
-@app.post("/upload")
+@app.post("/animatronics/upload")
 async def upload_file(file: UploadFile = File(...)):
     # Extract file name from UploadFile object
     file_name = file.filename
@@ -39,11 +39,30 @@ async def upload_file(file: UploadFile = File(...)):
     file_name = " ".join([word.capitalize() for word in file_name.split(" ")])[:-len(file_name.split(".")[-1])-1]
 
     # Save file name, game name, and year to PostgreSQL
-    cursor.execute("INSERT INTO \"s-cuadrado\" (nombre, juego, año) VALUES (%s, %s, %s)", (file_name, "Five Night's at Freddy's 7", 2024))
+    cursor.execute("INSERT INTO \"s-cuadrado\" (nombre, juego, año) VALUES (%s, %s, %s)", (file_name, "FNAF 7", 2024))
     conn.commit()
 
     return {"message": "File uploaded successfully"}
 
+
+@app.get("/animatronics/game/{number}")
+async def get_animatronics_by_game_number(number: int):
+    # Fetch animatronics by game number
+    cursor.execute("SELECT * FROM \"s-cuadrado\" WHERE juego LIKE %s", ("FNAF " + str(number) + "%",))
+    animatronics = cursor.fetchall()
+    print(animatronics)
+
+    # Format animatronics as a list of dictionaries
+    animatronics_list = []
+    for animatronic in animatronics:
+        animatronics_list.append({
+            "id": animatronic[0],
+            "nombre": animatronic[1],
+            "juego": animatronic[2],
+            "año": animatronic[3]
+        })
+
+    return {"animatronics": animatronics_list}
 
 
 @app.get("/")
@@ -56,8 +75,8 @@ async def say_hello(name: str):
     return {"message": f"Hello {name}"}
 
 
-@app.delete("/delete-all")
-async def delete_all_objects():
+@app.delete("/debug/delete-all")
+async def delete_all_objects_s3():
     # List all objects in the folder
     objects = s3_client.list_objects_v2(Bucket=S3_BUCKET_NAME, Prefix=f"{S3_FOLDER_NAME}/")
 
