@@ -3,6 +3,7 @@ import psycopg2
 import boto3
 from fastapi import FastAPI, UploadFile, File, Form
 from dotenv import load_dotenv
+import uvicorn
 load_dotenv()
 
 app = FastAPI()
@@ -95,3 +96,6 @@ async def delete_all_objects_s3():
         s3_client.delete_objects(Bucket=S3_BUCKET_NAME, Delete={'Objects': delete_keys})
 
     return {"message": "All objects deleted successfully"}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0" , port=8000)

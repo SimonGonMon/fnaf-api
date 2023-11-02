@@ -1,5 +1,7 @@
-psycopg2~=2.9.9
-boto3==1.28.72
-fastapi~=0.104.0
-python-dotenv~=1.0.0
+psycopg2-binary
+boto3
+fastapi
+python-dotenv
 python-multipart
+uvicorn
+mangum
